@@ -6,6 +6,7 @@ from typing import AsyncGenerator
 
 
 async def messages(reader: StreamReader) -> AsyncGenerator[bytes, None]:
+    """Async generator to return messages as they come in."""
     try:
         while True:
             size_prefix = await reader.readexactly(4)
@@ -17,6 +18,7 @@ async def messages(reader: StreamReader) -> AsyncGenerator[bytes, None]:
 
 
 async def send_message(writer: StreamWriter, message: bytes):
+    """To close the connection, use an empty message."""
     if not message:
         writer.close()
         await writer.wait_closed()

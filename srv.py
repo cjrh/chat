@@ -3,7 +3,6 @@ from collections import defaultdict
 from weakref import WeakValueDictionary
 import json
 import utils
-from pprint import pprint
 
 
 WRITERS = WeakValueDictionary()
@@ -19,10 +18,8 @@ async def sender(addr, writer, room, msg):
     except (ConnectionAbortedError, ConnectionResetError):
         """ Connection is dead, remove it."""
         if addr in WRITERS:
-            print(f'deleting {addr} from WRITERS')
             del WRITERS[addr]
         if addr in ROOMS[room]:
-            print(f'deleting {addr} from ROOMS[{room}]')
             del ROOMS[room][addr]
 
 
