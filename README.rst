@@ -8,6 +8,8 @@ since a common (and justified) criticism of many asyncio tutorials
 is that they're too simple to be useful for building real-world
 applications.
 
+.. image:: client.jpg
+
 Demonstrated Techniques
 -----------------------
 
