@@ -10,6 +10,19 @@ applications.
 
 .. image:: client.jpg
 
+How To Run
+----------
+
+Requires Python >= 3.7
+
+#. Open a new terminal, run ``$ python srv.py``
+#. Open a new terminal, run ``$ python client.py``
+#. Open a *second* new terminal, run ``$ python client.py``
+
+There should be two GUI windows open, and if you type a message
+into the bottom edit box and hit ``ENTER``, you should see
+the message appear in the other GUI.
+
 Demonstrated Techniques
 -----------------------
 
@@ -25,9 +38,11 @@ in the demo code:
   client instances can be started.
 
   + using ``asyncio.open_connection()``
+  + handle server outage with a **reconnection** loop
 
 - new asyncio APIs like ``asyncio.run()`` and ``asyncio.create_task``
 - Using the **asyncio Streams API**
+- decoupling tasks for sending and receiving
 - SSL connections
 
 - client application has a Tkinter GUI.

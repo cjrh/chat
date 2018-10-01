@@ -37,7 +37,8 @@ def install_signal_handling(fut: Future):
         loop = get_running_loop()
 
         def busyloop():
-            """Required to handle CTRL-C quickly on Windows"""
+            """Required to handle CTRL-C quickly on Windows
+            https://bugs.python.org/issue23057 """
             loop.call_later(0.1, busyloop)
 
         loop.call_later(0.1, busyloop)

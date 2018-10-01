@@ -38,7 +38,6 @@ async def client_connected_cb(reader, writer):
     async for msg in utils.messages(reader):
         print(f'Received bytes: {msg}')
         d = json.loads(msg)
-        print(f'Received msg: {d}')
         if d.get('action') == 'join':
             ROOMS[d['room']][addr] = writer
         elif d.get('action') == 'leave':
