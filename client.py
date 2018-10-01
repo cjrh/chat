@@ -1,8 +1,10 @@
 import asyncio
 import json
-from collections import deque
+import ssl
 
 import utils
+from tkinter import *
+from tkinter.ttk import *
 
 
 async def receiver(reader, add_item=None):
@@ -35,8 +37,12 @@ async def main(use_signal=True, add_item=None):
                 return
 
             print('Connecting...')
-            reader, writer = await asyncio.open_connection(host='localhost',
-                                                           port=9011)
+            ctx = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+            ctx.check_hostname = False
+            ctx.load_verify_locations('chat.crt')
+            reader, writer = await asyncio.open_connection(
+                host='localhost', port=9011, ssl=ctx
+            )
         except OSError:
             await asyncio.sleep(1.0)
             continue
@@ -59,17 +65,12 @@ async def main(use_signal=True, add_item=None):
         await asyncio.gather(rtask, stask, return_exceptions=True)
 
 
-if __name__ == '__main__':
-
-
-    from tkinter import *
-    from tkinter.ttk import *
-
+def uimain():
     root = Tk()
     Grid.rowconfigure(root, 1, weight=1)
     Grid.columnconfigure(root, 0, weight=1)
 
-    Button(root, text="Hello World").grid(row=0, column=0, sticky=W)
+    Button(root, text="Join Room").grid(row=0, column=0, sticky=W)
 
     s = Style()
     s.configure('My.TFrame', background='red')
@@ -110,3 +111,7 @@ if __name__ == '__main__':
     thread = threading.Thread(target=run_thread, daemon=True)
     thread.start()
     root.mainloop()
+
+
+if __name__ == '__main__':
+    uimain()
