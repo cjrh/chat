@@ -3,6 +3,7 @@ from collections import defaultdict
 from weakref import WeakValueDictionary
 import json
 import utils
+import ssl
 
 
 WRITERS = WeakValueDictionary()
@@ -48,10 +49,14 @@ async def client_connected_cb(reader, writer):
 
 
 async def main():
+    ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    ctx.check_hostname = False
+    ctx.load_cert_chain('chat.crt', 'chat.key')
     server = await asyncio.start_server(
         client_connected_cb=client_connected_cb,
         host='localhost',
         port='9011',
+        ssl=ctx,
     )
     shutdown = asyncio.Future()
     utils.install_signal_handling(shutdown)
