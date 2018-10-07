@@ -10,6 +10,10 @@ applications.
 
 .. image:: client.jpg
 
+.. image:: client-mac.png
+
+.. image:: client-linux.png
+
 How To Run
 ----------
 
