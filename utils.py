@@ -1,7 +1,13 @@
 import sys
 from asyncio import (StreamReader, StreamWriter, IncompleteReadError, Future,
     get_running_loop)
-from signal import signal, SIGBREAK, SIGTERM, SIGINT
+
+if sys.platform == 'win32':
+    from signal import signal, SIGBREAK, SIGTERM, SIGINT
+else:
+    SIGBREAK = None
+    from signal import signal, SIGTERM, SIGINT
+
 from typing import AsyncGenerator
 
 
