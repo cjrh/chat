@@ -90,16 +90,24 @@ def uimain():
 
     Button(root, text="Join Room").grid(row=0, column=0, sticky=W)
 
-    frame = Frame(master=root, style=make_style('My.TFrame', 'red'))
+    frame = Frame(master=root, style=make_style('My.TFrame', 'red'),
+                  width=100, padding=5)
     frame.grid(row=1, column=0, sticky=N+S+E+W)
     Grid.rowconfigure(frame, 0, weight=1)
     Grid.columnconfigure(frame, 1, weight=1)
 
     room_items = ['general']
     room_var = StringVar(value=room_items)
-    rooms = Listbox(frame, listvariable=room_var).grid(row=0, column=0, sticky=N+S+W+E)
+    # rooms = Listbox(frame, listvariable=room_var).grid(row=0, column=0, sticky=N+S+W+E)
+    rooms = Treeview(
+        frame,
+        show='headings',  # Suppress column headers
+        columns=['rooms'],
+    )
+    rooms.grid(row=0, column=0, sticky=N+S+W)
+    rooms.insert('', 'end', text='general', values=['gen'])
 
-    rhsframe = Frame(frame)
+    rhsframe = Frame(frame, padding=5, style=make_style('My2.TFrame', 'blue'))
     rhsframe.grid(row=0, column=1, sticky=N+S+E+W)
     Grid.rowconfigure(rhsframe, 0, weight=1)
     Grid.columnconfigure(rhsframe, 0, weight=1)
@@ -114,12 +122,16 @@ def uimain():
     messages.config(yscrollcommand=scrollbar.set)
     scrollbar.config(command=messages.yview)
 
+    text = Text(rhsframe, font=('Helvetica', 10), height=10, wrap=WORD)
+    text.grid(row=1, column=0, sticky=N+S+E+W)
+
     new_message = Entry(master=rhsframe)
-    new_message.grid(row=1, column=0, sticky=E+W)
+    new_message.grid(row=2, column=0, sticky=E+W)#, padx=10, pady=10)
 
     def add_item(text):
         msgsd.append(text)
         msgs.set(msgsd)
+        text.insert(END, text + '\n')
 
     # Setting up bidirectional communication between the main
     # thread (UI), and the asyncio thread (IO).
@@ -137,6 +149,36 @@ def uimain():
             if all(k in data for k in ['room', 'msg']):
                 msgsd.append(data['msg'])
                 msgs.set(msgsd)
+
+                msg = data['msg']
+
+                matches_bold = []
+                for m in re.finditer(r'\*(.*?)\*', msg):
+                    matches_bold.append(m)
+
+                matches_under = []
+                for m in re.finditer(r'_(.*?)_', msg):
+                    matches_under.append(m)
+
+                current = text.index(END) + ' - 1 lines'
+                print('current', current)
+                text.insert(END, msg + '\n', ('new',))
+                # ranges = text.tag_ranges('new')
+                # print(ranges)
+
+                text.tag_config('bold', font=('Times', '12', 'bold'))
+                for m in matches_bold:
+                    a = current + f' + {m.start() + 1} chars'
+                    b = current + f' + {m.end() + 1} chars'
+                    print(a, b)
+                    text.tag_add('bold', a, b)
+
+                text.tag_config('underline', underline=1)
+                for m in matches_under:
+                    a = current + f' + {m.start() + 1} chars'
+                    b = current + f' + {m.end() + 1} chars'
+                    print(a, b)
+                    text.tag_add('underline', a, b)
         finally:
             root.after(100, handler)
 
