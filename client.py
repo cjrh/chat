@@ -6,8 +6,6 @@ import queue
 import utils
 from tkinter import *
 from tkinter.ttk import *
-# s = Style()
-# s.theme_use('clam')
 
 
 async def receiver(reader, queue_ui):
@@ -84,8 +82,9 @@ def make_style(name, color):
 
 def uimain():
     root = Tk()
-    s = Style()
-    s.theme_use('clam')
+    if sys.platform.startswith('linux'):
+        s = Style()
+        s.theme_use('clam')
     Grid.rowconfigure(root, 1, weight=1)
     Grid.columnconfigure(root, 0, weight=1)
 
