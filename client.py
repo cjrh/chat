@@ -112,25 +112,18 @@ def uimain():
     Grid.rowconfigure(rhsframe, 0, weight=1)
     Grid.columnconfigure(rhsframe, 0, weight=1)
 
-    msgsd = list()
-    msgs = StringVar(value=msgsd)
-    messages = Listbox(rhsframe, listvariable=msgs, width=60, height=20)
-    messages.grid(row=0, column=0, sticky=N+S+E+W)
-
     scrollbar = Scrollbar(rhsframe)
     scrollbar.grid(row=0, column=1, sticky=N+S+E)
-    messages.config(yscrollcommand=scrollbar.set)
-    scrollbar.config(command=messages.yview)
 
     text = Text(rhsframe, font=('Helvetica', 10), height=10, wrap=WORD)
-    text.grid(row=1, column=0, sticky=N+S+E+W)
+    text.grid(row=0, column=0, sticky=N+S+E+W)
+    text.config(yscrollcommand=scrollbar.set)
+    scrollbar.config(command=text.yview)
 
     new_message = Entry(master=rhsframe)
-    new_message.grid(row=2, column=0, sticky=E+W)#, padx=10, pady=10)
+    new_message.grid(row=1, column=0, sticky=E+W)#, padx=10, pady=10)
 
     def add_item(text):
-        msgsd.append(text)
-        msgs.set(msgsd)
         text.insert(END, text + '\n')
 
     # Setting up bidirectional communication between the main
@@ -147,38 +140,54 @@ def uimain():
             return
         else:
             if all(k in data for k in ['room', 'msg']):
-                msgsd.append(data['msg'])
-                msgs.set(msgsd)
-
                 msg = data['msg']
 
-                matches_bold = []
-                for m in re.finditer(r'\*(.*?)\*', msg):
-                    matches_bold.append(m)
-
-                matches_under = []
-                for m in re.finditer(r'_(.*?)_', msg):
-                    matches_under.append(m)
-
+                # Add the text to the text widget
                 current = text.index(END) + ' - 1 lines'
                 print('current', current)
                 text.insert(END, msg + '\n', ('new',))
                 # ranges = text.tag_ranges('new')
                 # print(ranges)
 
+                matches_bold = []
+                re_bold = re.compile(r'\*(.*?)\*')
+                for m in re_bold.finditer(msg):
+                    matches_bold.append(m)
+
                 text.tag_config('bold', font=('Times', '12', 'bold'))
-                for m in matches_bold:
+                for m in reversed(matches_bold):
                     a = current + f' + {m.start() + 1} chars'
-                    b = current + f' + {m.end() + 1} chars'
+                    b = current + f' + {m.end()} chars'
                     print(a, b)
                     text.tag_add('bold', a, b)
+                    text.delete(b + ' - 1 chars')
+                    text.delete(a + ' - 1 chars')
+
+                matches_under = []
+                for m in re.finditer(r'_(.*?)_', msg):
+                    matches_under.append(m)
 
                 text.tag_config('underline', underline=1)
-                for m in matches_under:
+                for m in reversed(matches_under):
                     a = current + f' + {m.start() + 1} chars'
-                    b = current + f' + {m.end() + 1} chars'
+                    b = current + f' + {m.end()} chars'
                     print(a, b)
                     text.tag_add('underline', a, b)
+                    text.delete(b + ' - 1 chars')
+                    text.delete(a + ' - 1 chars')
+
+                matches_code = []
+                for m in re.finditer(r'`(.*?)`', msg):
+                    matches_code.append(m)
+
+                text.tag_config('code', font=('Courier New', '10'))
+                for m in reversed(matches_code):
+                    a = current + f' + {m.start() + 1} chars'
+                    b = current + f' + {m.end()} chars'
+                    print(a, b)
+                    text.tag_add('code', a, b)
+                    text.delete(b + ' - 1 chars')
+                    text.delete(a + ' - 1 chars')
         finally:
             root.after(100, handler)
 
